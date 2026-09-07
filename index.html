@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SAAS Lernplattform für strukturierte Aufgaben, Noten, Kalender und KI-gestützte Lernunterstützung.">
+  <meta name="theme-color" content="#667eea">
+  <title>SAAS Lernplattform</title>
+  <link rel="manifest" href="frontend/manifest.webmanifest">
+  <link rel="stylesheet" href="frontend/styles/main.css?v=2026.07.30">
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #1f2937;
+    }
+    .navbar { height: 70px; }
+    main { min-height: 400px; }
+    .init-error {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(17, 24, 39, 0.92);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      z-index: 9999;
+    }
+    .init-error button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.25rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    if ('caches' in window) {
+      caches.keys().then((cacheNames) => {
+        cacheNames.forEach((cacheName) => {
+          if (cacheName !== 'saas-cache-v2026-07-30') {
+            caches.delete(cacheName);
+          }
+        });
+      });
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch((error) => {
+          console.warn('Service worker registration failed:', error);
+        });
+      });
+    }
+  </script>
+
+  <script defer src="frontend/error-handler.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/mockData.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/router.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/utils/db.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/utils/api.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/utils/helpers.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/components.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages.js?v=2026.07.30.1"></script>
+
+  <script defer src="frontend/pages/mainsite.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/login.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/register.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/dashboard.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/aufgaben.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/noten.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/kalender.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/tests.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/ai.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/profil.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/abo.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/statistiken.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/goals.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/timer.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/subjects.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/weekly-summary.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/quiz.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/quiz-solve.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/notes.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/habits.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/leaderboard.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/achievements.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/analytics.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/friends.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/messages.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/study-groups.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/spaced-repetition.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/flashcard-study.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/certifications.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/challenges.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/reports.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/skill-tree.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/mentorship.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/notifications.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/streak-calendar.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/activity-feed.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/media-library.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/study-plans.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/dashboard-widgets.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/badge-shop.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/email-notifications.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/tournaments.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/comparative-analytics.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/privacy-settings.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/theme-customization.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/exam-simulator.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/resource-library.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/daily-rewards.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/ai-coach.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/pages/subscription-plans.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/app.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/init.js?v=2026.07.30.1"></script>
+  <script defer src="frontend/performance.js?v=2026.07.30.1"></script>
+</body>
+</html>
