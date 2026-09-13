@@ -1,0 +1,7 @@
+::1 - - [13/Sep/2026:15:50:04 +0000] "GET / HTTP/1.1" 404 206 "https://github.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15"
+::1 - - [13/Sep/2026:15:50:07 +0000] "GET /apple-touch-icon-precomposed.png HTTP/1.1" 404 50 "-" "NetworkingExtension/8624.5.1.10.3 Network/5812.160.9 iOS/26.6.2"
+::1 - - [13/Sep/2026:15:50:07 +0000] "GET /apple-touch-icon.png HTTP/1.1" 404 50 "-" "NetworkingExtension/8624.5.1.10.3 Network/5812.160.9 iOS/26.6.2"
+::1 - - [13/Sep/2026:15:50:07 +0000] "GET /favicon.ico HTTP/1.1" 404 50 "-" "NetworkingExtension/8624.5.1.10.3 Network/5812.160.9 iOS/26.6.2"
+::1 - - [13/Sep/2026:15:52:00 +0000] "GET /favicon.ico HTTP/1.1" 404 50 "https://friendly-space-dollop-jrqpq4q69wp4fr-3000.app.github.dev/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+::1 - - [13/Sep/2026:15:52:15 +0000] "GET / HTTP/1.1" 404 206 "https://friendly-space-dollop-jrqpq4q69wp4fr-3000.app.github.dev/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+::1 - - [13/Sep/2026:16:04:27 +0000] "GET / HTTP/1.1" 404 206 "https://friendly-space-dollop-jrqpq4q69wp4fr.github.dev/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15"
