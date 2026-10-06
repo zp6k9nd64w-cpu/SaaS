@@ -5,3 +5,8 @@
 ::1 - - [13/Sep/2026:15:52:00 +0000] "GET /favicon.ico HTTP/1.1" 404 50 "https://friendly-space-dollop-jrqpq4q69wp4fr-3000.app.github.dev/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
 ::1 - - [13/Sep/2026:15:52:15 +0000] "GET / HTTP/1.1" 404 206 "https://friendly-space-dollop-jrqpq4q69wp4fr-3000.app.github.dev/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
 ::1 - - [13/Sep/2026:16:04:27 +0000] "GET / HTTP/1.1" 404 206 "https://friendly-space-dollop-jrqpq4q69wp4fr.github.dev/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15"
+::1 - - [13/Sep/2026:16:11:16 +0000] "GET /api/health HTTP/1.1" 404 50 "-" "curl/8.5.0"
+::1 - - [13/Sep/2026:16:11:16 +0000] "GET / HTTP/1.1" 404 206 "-" "curl/8.5.0"
+::1 - - [13/Sep/2026:16:11:16 +0000] "GET /frontend/init.js HTTP/1.1" 404 50 "-" "curl/8.5.0"
+::1 - - [13/Sep/2026:16:41:18 +0000] "HEAD / HTTP/1.1" 404 206 "-" "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+::1 - - [13/Sep/2026:16:41:18 +0000] "GET / HTTP/1.1" 404 206 "-" "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"

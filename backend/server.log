@@ -1,0 +1,7 @@
+::1 - - [13/Sep/2026:16:12:31 +0000] "GET /api/tasks?userId=1 HTTP/1.1" 200 269 "-" "curl/8.5.0"
+::1 - - [13/Sep/2026:16:12:33 +0000] "GET / HTTP/1.1" 200 6475 "-" "curl/8.5.0"
+::1 - - [13/Sep/2026:16:14:58 +0000] "GET / HTTP/1.1" 200 6397 "-" "curl/8.5.0"
+::1 - - [13/Sep/2026:16:17:09 +0000] "GET / HTTP/1.1" 200 6355 "-" "curl/8.5.0"
+::1 - - [13/Sep/2026:16:41:19 +0000] "HEAD / HTTP/1.1" 200 6355 "-" "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+::1 - - [13/Sep/2026:16:41:20 +0000] "HEAD / HTTP/1.1" 200 6355 "-" "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+127.0.0.1 - - [29/Sep/2026:09:57:49 +0000] "GET / HTTP/1.1" 200 - "-" "node"

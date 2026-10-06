@@ -11,7 +11,7 @@ window.registerPageRoutes = function () {
   router.addRoute('/login', login);
   router.addRoute('/register', register);
   router.addRoute('/abo', abo);
-  router.addRoute('/statistiken', statistiken);
+  router.addRoute('/statistiken', analytics);
   router.addRoute('/goals', goals);
   router.addRoute('/timer', timer);
   router.addRoute('/faecher', subjects);

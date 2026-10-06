@@ -58,7 +58,8 @@ function selectPlan(plan) {
   router.navigate(`/abo?plan=${encodeURIComponent(plan)}`);
 }
 
-function logoutUser() {
+async function logoutUser() {
+  await apiPost('/logout', {});
   appState.user = null;
   appState.subscription = 'Free';
   saveAppState();
@@ -519,6 +520,12 @@ function addXP(amount, reason = 'activity') {
   }
   
   localStorage.setItem(xpKey, JSON.stringify(xpData));
+  if (typeof apiPost === 'function') {
+    const eventKey = `xp_${userId}_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
+    apiPost('/xp', { reason, eventKey }).catch(error => {
+      console.warn('XP konnte nicht mit dem Online-Konto synchronisiert werden:', error);
+    });
+  }
   
   // Track XP activity for achievements
   trackXPActivity(userId, amount, reason);

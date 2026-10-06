@@ -1,5 +1,5 @@
 // Service worker for offline caching and resilient app delivery.
-const CACHE_NAME = 'saas-cache-v2026-07-30-1';
+const CACHE_NAME = 'saas-cache-v2026-07-30-2';
 const APP_SHELL = [
   '/',
   '/index.html',

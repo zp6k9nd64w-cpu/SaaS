@@ -41,7 +41,7 @@
 
 ## 🚀 FEHLENDE Features (nach Priorität)
 
-### 🔴 SEHR WICHTIG (würde die App massiv verbessern):
+###  SEHR WICHTIG (würde die App massiv verbessern):
 
 #### 1. **📈 Detaillierte Study Analytics** ⭐⭐⭐⭐⭐
 **Warum wichtig:** Schüler wollen ihre Fortschritte SEHEN

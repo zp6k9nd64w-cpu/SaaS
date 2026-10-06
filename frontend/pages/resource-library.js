@@ -1,157 +1,177 @@
-// Resource Library - PDFs, Skripte, Notizen teilen
+// Resource Library - API-backed resource links and saved choices.
 const resourceLibrary = {
-  render: () => {
+  render: async (errorMessage = '') => {
     if (!requireAuth()) return;
     mockDB.init();
-    
-    const userId = appState.user.id;
-    const myResources = JSON.parse(localStorage.getItem(`resources_${userId}`) || '[]');
-    const savedResources = JSON.parse(localStorage.getItem(`saved_resources_${userId}`) || '[]');
-    
-    const communityResources = [
-      { id: 'r1', title: 'Mathe Formelsammlung', author: 'Prof. Schmidt', type: 'PDF', downloads: 245, rating: 4.8, subject: 'Mathematik' },
-      { id: 'r2', title: 'Biologie Lernzettel', author: 'Anna K.', type: 'PDF', downloads: 189, rating: 4.7, subject: 'Biologie' },
-      { id: 'r3', title: 'Englisch Vokabeln Deck', author: 'Learning Hub', type: 'Flashcards', downloads: 312, rating: 4.9, subject: 'Englisch' },
-      { id: 'r4', title: 'Geschichte Timeline', author: 'History Pro', type: 'PDF', downloads: 156, rating: 4.6, subject: 'Geschichte' },
-      { id: 'r5', title: 'Chemie Reaktionstypen', author: 'Chem Master', type: 'PDF', downloads: 198, rating: 4.7, subject: 'Chemie' },
-      { id: 'r6', title: 'Deutsch Literatur Analyse', author: 'Deutsch Team', type: 'Script', downloads: 224, rating: 4.8, subject: 'Deutsch' },
-    ];
-    
+    let resources = [];
+    let loadError = errorMessage;
+    try {
+      const result = await apiGet('/resources');
+      resourceAssertApiSuccess(result, 'Der Ressourcen-Dienst hat die Anfrage abgelehnt.');
+      resources = Array.isArray(result) ? result : result?.resources;
+      if (!Array.isArray(resources)) throw new Error('Die Ressourcen-Antwort vom Server hatte ein unerwartetes Format.');
+    } catch (error) {
+      loadError = `Ressourcen konnten nicht geladen werden: ${error.message || 'Unbekannter API-Fehler'}`;
+    }
+
+    const userId = String(appState.user.id);
+    const privateResources = resources.filter(resource => (resource.visibility || 'private') === 'private' && String(resource.ownerId) === userId);
+    const friendResources = resources.filter(resource => resource.visibility === 'friends');
+    const communityResources = resources.filter(resource => resource.visibility === 'community');
+    const savedResources = resources.filter(resource => resource.saved);
+    const resourceCard = resource => `
+      <article class="task-item" style="border:1px solid #ddd;border-radius:12px;padding:1rem;">
+        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:start;">
+          <div>
+            <strong>${resourceEscape(resource.title)}</strong>
+            ${resource.subject ? `<p style="margin:0.25rem 0;color:#667eea;">${resourceEscape(resource.subject)}</p>` : ''}
+            ${resource.description ? `<p style="margin:0.5rem 0;color:#666;">${resourceEscape(resource.description)}</p>` : ''}
+            <small style="color:#999;">${String(resource.ownerId) === userId ? 'Von dir' : `Geteilt von ${resourceEscape(resource.author || 'Nutzer')}`} · ${resourceKindLabel(resource.kind)} · ${resourceVisibilityLabel(resource.visibility || 'private')}</small>
+          </div>
+          ${String(resource.ownerId) === userId ? `<button class="btn btn-sm btn-secondary" onclick="deleteResource('${resourceEscape(resource.id)}')">🗑️ Entfernen</button>` : ''}
+        </div>
+        ${resource.url && resourceValidUrl(resource.url) ? `
+          <p style="overflow-wrap:anywhere;"><a href="${resourceEscape(resource.url)}" target="_blank" rel="noopener noreferrer">${resourceEscape(resource.url)}</a></p>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <a class="btn btn-primary" href="${resourceEscape(resource.url)}" target="_blank" rel="noopener noreferrer">🔗 Ressource öffnen</a>
+            <button class="btn btn-secondary" onclick="toggleSaveResource('${resourceEscape(resource.id)}', ${!resource.saved})">${resource.saved ? '⭐ Gespeichert' : '☆ Speichern'}</button>
+          </div>` : '<p style="color:#999;">Der Server hat für diese Ressource keine gültige http(s)-URL gespeichert.</p>'}
+      </article>`;
+    const errorBanner = loadError ? `<p role="alert" style="padding:0.75rem;background:#ffebee;color:#b71c1c;border-radius:8px;">${resourceEscape(loadError)}</p>` : '';
     const main = createPageContainer(`
       <div class="page-card">
         <h1>📚 Ressourcen-Bibliothek</h1>
-        <p>Teile und entdecke Lernmaterialien der Community</p>
+        <p>Teile echte Ressourcen-Links mit der Community. Daten und Speicherstatus werden mit dem Server synchronisiert; es werden keine Dateien hochgeladen oder Downloads simuliert.</p>
+        ${errorBanner}
       </div>
-      
-      <section class="page-card" style="margin-top: 1.5rem;">
-        <h2>📤 Meine Ressourcen</h2>
-        <button class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;" onclick="showUploadModal()">
-          ➕ Neue Ressource hochladen
-        </button>
-        
-        ${myResources.length > 0
-          ? `<div style="display: grid; gap: 1rem;">
-              ${myResources.map(resource => `
-                <div class="task-item" style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;">
-                  <div>
-                    <strong>${resource.title}</strong>
-                    <p style="margin: 0.25rem 0; color: #999; font-size: 0.9rem;">
-                      📥 ${resource.downloads || 0} Downloads • ⭐ ${resource.rating || 0}
-                    </p>
-                  </div>
-                  <button class="btn btn-sm btn-secondary" onclick="deleteResource('${resource.id}')">🗑️</button>
-                </div>
-              `).join('')}
-            </div>`
-          : '<p style="color: #999; text-align: center; padding: 1rem;">Noch keine Ressourcen hochgeladen</p>'
-        }
+      <section class="page-card" style="margin-top:1.5rem;">
+        <h2>📤 Ressource hinzufügen</h2>
+        <form onsubmit="createResource(event)" style="display:grid;gap:0.75rem;">
+          <input id="resource-title" required maxlength="120" placeholder="Titel der Ressource">
+          <input id="resource-url" required type="url" placeholder="https://… (öffentlicher Link)">
+          <input id="resource-subject" maxlength="80" placeholder="Fach oder Kategorie (optional)">
+          <select id="resource-kind" required>
+            <option value="link">Link</option><option value="article">Artikel</option><option value="video">Video</option><option value="document">Dokument-Link</option>
+          </select>
+          <label>Sichtbarkeit
+            <select id="resource-visibility" required>
+              <option value="private" selected>Privat – nur ich</option>
+              <option value="friends">Freunde – nur bestätigte Freunde</option>
+              <option value="community">Community – angemeldete Nutzer</option>
+            </select>
+          </label>
+          <textarea id="resource-description" maxlength="500" placeholder="Beschreibung (optional)"></textarea>
+          <button class="btn btn-primary" type="submit">➕ Link speichern</button>
+        </form>
+        <p style="color:#666;">Private Ressourcen sind nur für dich sichtbar. Freunde-Ressourcen sind für bestätigte Freunde sichtbar; Community-Ressourcen für angemeldete Nutzer.</p>
       </section>
-      
-      <section class="page-card" style="margin-top: 1.5rem;">
-        <h2>🌍 Community Ressourcen</h2>
-        <div style="display: grid; gap: 1rem; margin-bottom: 1rem;">
-          <input type="text" placeholder="🔍 Ressourcen durchsuchen..." style="padding: 0.75rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem;">
-        </div>
-        
-        <div style="display: grid; gap: 1.5rem;">
-          ${communityResources.map(resource => {
-            const isSaved = savedResources.includes(resource.id);
-            return `
-              <div style="border: 2px solid #ddd; border-radius: 12px; padding: 1.5rem;">
-                <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start; margin-bottom: 1rem;">
-                  <div>
-                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-                      <span style="font-size: 1.5rem;">
-                        ${resource.type === 'PDF' ? '📄' : resource.type === 'Flashcards' ? '🎴' : '📋'}
-                      </span>
-                      <h3 style="margin: 0;">${resource.title}</h3>
-                    </div>
-                    <p style="margin: 0; color: #667eea; font-size: 0.9rem;">von ${resource.author}</p>
-                  </div>
-                  <span style="background: #f0f0f0; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; color: #666;">
-                    ${resource.subject}
-                  </span>
-                </div>
-                
-                <div style="display: flex; gap: 1.5rem; margin-bottom: 1rem; font-size: 0.9rem; color: #666;">
-                  <span>📥 ${resource.downloads}</span>
-                  <span>⭐ ${resource.rating}</span>
-                  <span>${resource.type}</span>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                  <button class="btn btn-primary" onclick="downloadResource('${resource.id}')">📥 Download</button>
-                  <button class="btn btn-secondary" onclick="toggleSaveResource('${resource.id}')" style="background: ${isSaved ? '#667eea' : '#ddd'}; color: ${isSaved ? 'white' : '#333'};">
-                    ${isSaved ? '⭐ Gespeichert' : '☆ Speichern'}
-                  </button>
-                </div>
-              </div>
-            `;
-          }).join('')}
+      <section class="page-card" style="margin-top:1.5rem;">
+        <h2>🔒 Private Ressourcen – nur ich</h2>
+        <div style="display:grid;gap:1rem;">${loadError ? '' : privateResources.length ? privateResources.map(resourceCard).join('') : '<p style="color:#999;">Keine privaten Ressourcen.</p>'}</div>
+      </section>
+      <section class="page-card" style="margin-top:1.5rem;">
+        <h2>👥 Ressourcen für bestätigte Freunde</h2>
+        <input id="resource-search" type="search" placeholder="🔍 Ressourcen durchsuchen…" oninput="resourceFilterCards()" style="width:100%;padding:0.75rem;margin-bottom:1rem;">
+        <div id="friends-resource-list" style="display:grid;gap:1rem;">
+          ${loadError ? '' : friendResources.length ? friendResources.map(resourceCard).join('') : '<p style="color:#999;">Keine Ressourcen mit Freunde-Sichtbarkeit verfügbar.</p>'}
         </div>
       </section>
-      
-      <section class="page-card" style="margin-top: 1.5rem;">
+      <section class="page-card" style="margin-top:1.5rem;">
+        <h2>🌍 Community-Ressourcen – angemeldete Nutzer</h2>
+        <div id="community-resource-list" style="display:grid;gap:1rem;">
+          ${loadError ? '' : communityResources.length ? communityResources.map(resourceCard).join('') : '<p style="color:#999;">Keine Community-Ressourcen verfügbar.</p>'}
+        </div>
+      </section>
+      <section class="page-card" style="margin-top:1.5rem;">
         <h2>💾 Gespeicherte Ressourcen</h2>
-        ${savedResources.length > 0
-          ? `<p style="color: #666;">Du hast ${savedResources.length} Ressourcen gespeichert</p>`
-          : '<p style="color: #999;">Noch keine Ressourcen gespeichert</p>'
-        }
-      </section>
-    `);
-    
+        <div style="display:grid;gap:1rem;">
+          ${loadError ? '' : savedResources.length ? `
+            <h3>Privat</h3>${savedResources.filter(resource => (resource.visibility || 'private') === 'private').map(resourceCard).join('') || '<p>Keine.</p>'}
+            <h3>Freunde</h3>${savedResources.filter(resource => resource.visibility === 'friends').map(resourceCard).join('') || '<p>Keine.</p>'}
+            <h3>Community</h3>${savedResources.filter(resource => resource.visibility === 'community').map(resourceCard).join('') || '<p>Keine.</p>'}
+          ` : '<p style="color:#999;">Noch keine Ressourcen gespeichert.</p>'}
+        </div>
+      </section>`);
     renderPageShell(main);
   }
 };
 
-function showUploadModal() {
-  const title = prompt('Ressourcen-Titel:');
-  if (title) {
-    const userId = appState.user.id;
-    let resources = JSON.parse(localStorage.getItem(`resources_${userId}`) || '[]');
-    
-    resources.push({
-      id: 'r_' + Date.now(),
-      title,
-      type: 'PDF',
-      downloads: 0,
-      rating: 0,
-      uploadedAt: new Date().toISOString()
-    });
-    
-    localStorage.setItem(`resources_${userId}`, JSON.stringify(resources));
-    addXP(50, 'resource_shared');
-    alert(`✅ Ressource "${title}" hochgeladen!`);
-    resourceLibrary.render();
+function resourceEscape(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+}
+
+function resourceValidUrl(value) {
+  try {
+    const url = new URL(value);
+    return (url.protocol === 'http:' || url.protocol === 'https:') && !url.username && !url.password;
+  } catch (_) {
+    return false;
   }
 }
 
-function downloadResource(resourceId) {
-  alert(`📥 Ressource wird heruntergeladen...\n\n✅ Download abgeschlossen!`);
-  addXP(20, 'resource_downloaded');
+function resourceKindLabel(kind) {
+  return ({ article: 'Artikel', video: 'Video', document: 'Dokument', link: 'Link' })[kind] || 'Link';
 }
 
-function toggleSaveResource(resourceId) {
-  const userId = appState.user.id;
-  let saved = JSON.parse(localStorage.getItem(`saved_resources_${userId}`) || '[]');
-  
-  if (saved.includes(resourceId)) {
-    saved = saved.filter(r => r !== resourceId);
-  } else {
-    saved.push(resourceId);
-  }
-  
-  localStorage.setItem(`saved_resources_${userId}`, JSON.stringify(saved));
-  resourceLibrary.render();
+function resourceVisibilityLabel(visibility) {
+  return ({ private: 'Privat', friends: 'Freunde', community: 'Community' })[visibility] || 'Privat';
 }
 
-function deleteResource(resourceId) {
-  if (confirm('Ressource löschen?')) {
-    const userId = appState.user.id;
-    let resources = JSON.parse(localStorage.getItem(`resources_${userId}`) || '[]');
-    resources = resources.filter(r => r.id !== resourceId);
-    localStorage.setItem(`resources_${userId}`, JSON.stringify(resources));
-    alert('✅ Ressource gelöscht');
-    resourceLibrary.render();
+function resourceAssertApiSuccess(result, fallbackMessage) {
+  if (result?.success === false || Number(result?.status) >= 400) {
+    throw new Error(result.message || fallbackMessage);
   }
+}
+
+async function createResource(event) {
+  event.preventDefault();
+  const title = document.getElementById('resource-title').value.trim();
+  const url = document.getElementById('resource-url').value.trim();
+  if (!title || !resourceValidUrl(url)) {
+    alert('Bitte einen Titel und eine gültige http(s)-URL eingeben.');
+    return;
+  }
+  const payload = {
+    title,
+    subject: document.getElementById('resource-subject').value.trim(),
+    url,
+    kind: document.getElementById('resource-kind').value,
+    visibility: document.getElementById('resource-visibility').value,
+    description: document.getElementById('resource-description').value.trim()
+  };
+  try {
+    const result = await apiPost('/resources', payload);
+    resourceAssertApiSuccess(result, 'Der Server hat das Speichern abgelehnt.');
+    await resourceLibrary.render();
+  } catch (error) {
+    await resourceLibrary.render(`Ressource konnte nicht gespeichert werden: ${error.message || 'Unbekannter API-Fehler'}`);
+  }
+}
+
+async function toggleSaveResource(resourceId, saved) {
+  try {
+    const result = await apiPut(`/resources/${encodeURIComponent(resourceId)}/saved`, { saved });
+    resourceAssertApiSuccess(result, 'Der Server hat die Änderung abgelehnt.');
+    await resourceLibrary.render();
+  } catch (error) {
+    await resourceLibrary.render(`Speicherstatus konnte nicht aktualisiert werden: ${error.message || 'Unbekannter API-Fehler'}`);
+  }
+}
+
+async function deleteResource(resourceId) {
+  if (!confirm('Ressource dauerhaft vom Server löschen?')) return;
+  try {
+    const result = await apiDelete(`/resources/${encodeURIComponent(resourceId)}`);
+    resourceAssertApiSuccess(result, 'Der Server hat das Löschen abgelehnt.');
+    await resourceLibrary.render();
+  } catch (error) {
+    await resourceLibrary.render(`Ressource konnte nicht gelöscht werden: ${error.message || 'Unbekannter API-Fehler'}`);
+  }
+}
+
+function resourceFilterCards() {
+  const query = document.getElementById('resource-search').value.trim().toLocaleLowerCase();
+  document.querySelectorAll('#friends-resource-list article, #community-resource-list article').forEach(card => {
+    card.style.display = card.textContent.toLocaleLowerCase().includes(query) ? '' : 'none';
+  });
 }

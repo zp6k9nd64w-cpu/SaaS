@@ -1,10 +1,23 @@
 const API_ROOT = '/api';
+const serverRequiredPaths = /^\/(friends|messages|groups|resources|study-sessions|analytics|reminders|notification-settings|privacy|xp|gamification|comparisons)(\/|$)/;
+const accountPaths = new Set(['/login', '/register', '/me', '/logout']);
+
+function apiError(result) {
+  return new Error(result.data?.message || `Die API-Anfrage ist fehlgeschlagen (HTTP ${result.status}).`);
+}
+
+function unavailableApiError() {
+  return new Error('Der Online-Dienst ist nicht erreichbar. Bitte prüfe die Verbindung und versuche es erneut.');
+}
 
 async function requestApi(path, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
   try {
     const response = await fetch(`${API_ROOT}${path}`, {
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
+      signal: controller.signal,
       ...options
     });
 
@@ -17,50 +30,74 @@ async function requestApi(path, options = {}) {
       data = await response.text().catch(() => null);
     }
 
-    const shouldFallback = !response.ok || response.status === 0 || response.status === 404 || response.status === 501 || !contentType.includes('application/json');
-
     return {
       ok: response.ok,
       data,
       status: response.status,
       statusText: response.statusText,
-      fallback: shouldFallback
+      fallback: response.status === 404 || response.status === 501 || !contentType.includes('application/json')
     };
   } catch (error) {
     console.warn('API request failed:', error);
     return { ok: false, networkError: true, fallback: true, error };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
 async function apiPost(path, body) {
   const result = await requestApi(path, { method: 'POST', body: JSON.stringify(body) });
-  if (result.networkError || result.fallback) {
+  if (serverRequiredPaths.test(path) && (result.networkError || result.status === 404 || result.status === 501)) {
+    throw unavailableApiError();
+  }
+  if (accountPaths.has(path) && result.networkError) throw unavailableApiError();
+  if (result.networkError || result.fallback && (result.status === 404 || result.status === 501)) {
     return offlineApiPost(path, body);
+  }
+  if (!result.ok) {
+    if (serverRequiredPaths.test(path) || !accountPaths.has(path)) throw apiError(result);
+    return { ...(result.data || {}), status: result.status };
   }
   return result.data;
 }
 
 async function apiGet(path) {
   const result = await requestApi(path, { method: 'GET' });
-  if (result.networkError || result.fallback) {
+  if ((serverRequiredPaths.test(path) || path === '/me') && (result.networkError || result.status === 404 || result.status === 501)) {
+    if (path === '/me') return { success: false, status: result.status };
+    throw unavailableApiError();
+  }
+  if (result.networkError || result.fallback && (result.status === 404 || result.status === 501)) {
     return offlineApiGet(path);
+  }
+  if (!result.ok) {
+    if (!accountPaths.has(path)) throw apiError(result);
+    return { ...(result.data || {}), status: result.status };
   }
   return result.data;
 }
 
 async function apiPut(path, body) {
   const result = await requestApi(path, { method: 'PUT', body: JSON.stringify(body) });
-  if (result.networkError || result.fallback) {
+  if (serverRequiredPaths.test(path) && (result.networkError || result.status === 404 || result.status === 501)) {
+    throw unavailableApiError();
+  }
+  if (result.networkError || result.fallback && (result.status === 404 || result.status === 501)) {
     return offlineApiPut(path, body);
   }
+  if (!result.ok) throw apiError(result);
   return result.data;
 }
 
 async function apiDelete(path) {
   const result = await requestApi(path, { method: 'DELETE' });
-  if (result.networkError || result.fallback) {
+  if (serverRequiredPaths.test(path) && (result.networkError || result.status === 404 || result.status === 501)) {
+    throw unavailableApiError();
+  }
+  if (result.networkError || result.fallback && (result.status === 404 || result.status === 501)) {
     return offlineApiDelete(path);
   }
+  if (!result.ok) throw apiError(result);
   return result.data;
 }
 

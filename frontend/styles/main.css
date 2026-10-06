@@ -1,13 +1,15 @@
 /* Main Styles */
 :root {
   color-scheme: light;
-  --primary: #667eea;
-  --secondary: #764ba2;
+  --primary: #5267a8;
+  --primary-dark: #3f518d;
+  --secondary: #7180b5;
   --surface: #ffffff;
-  --text: #1f2937;
+  --page: #f4f6fb;
+  --text: #243047;
   --muted: #6b7280;
-  --border: rgba(102, 126, 234, 0.16);
-  --shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  --border: #e3e8f2;
+  --shadow: 0 10px 30px rgba(35, 48, 71, 0.08);
 }
 
 * {
@@ -20,7 +22,7 @@ body {
   font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
   line-height: 1.6;
   color: var(--text);
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: var(--page);
   min-height: 100vh;
 }
 
@@ -46,23 +48,24 @@ input {
   padding: 0.9rem 1.2rem;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: var(--primary);
   color: white;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.24);
+  box-shadow: 0 8px 20px rgba(82, 103, 168, 0.2);
 }
 
 .btn:hover {
   transform: translateY(-2px);
+  background: var(--primary-dark);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
+  background: var(--surface);
+  color: var(--primary-dark);
   box-shadow: none;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  border: 1px solid var(--border);
 }
 
 .error-message {
@@ -81,7 +84,7 @@ input {
   align-items: center;
   background: white;
   padding: 1rem 2rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(35, 48, 71, 0.08);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -91,9 +94,10 @@ input {
 .logo {
   font-size: 1.8rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: var(--primary-dark);
+  text-decoration: none;
+  background: none;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
   min-width: 150px;
   cursor: pointer;
@@ -101,7 +105,8 @@ input {
 }
 
 .logo:hover {
-  transform: scale(1.05);
+  color: var(--primary);
+  transform: translateY(-1px);
 }
 
 /* ===== SLIDE MENU (SIDE PANEL) ===== */
@@ -299,12 +304,12 @@ main {
 }
 
 .section-heading h2 {
-  color: #fff;
+  color: var(--text);
   margin-bottom: 0.35rem;
 }
 
 .section-heading p {
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--muted);
 }
 
 .hero {
@@ -312,7 +317,7 @@ main {
   grid-template-columns: 1.2fr 0.8fr;
   gap: 2rem;
   align-items: center;
-  padding: 4rem 0;
+  padding: 3.5rem 0;
 }
 
 .hero-inner {
@@ -324,7 +329,7 @@ main {
   display: inline-block;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: #eef2ff;
+  color: var(--primary);
   font-size: 0.8rem;
   margin-bottom: 0.5rem;
 }
@@ -332,11 +337,11 @@ main {
 .hero h1 {
   font-size: clamp(2.4rem, 4vw, 4rem);
   line-height: 1.05;
-  color: #fff;
+  color: var(--text);
 }
 
 .hero p {
-  color: #eef2ff;
+  color: var(--muted);
   font-size: 1.05rem;
   max-width: 620px;
 }
@@ -353,11 +358,12 @@ main {
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--surface);
   padding: 1.25rem;
   border-radius: 18px;
-  color: #fff;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 
 .stat-card strong {
@@ -891,6 +897,72 @@ body.dark-mode .dropdown-item:hover {
 
 body.dark-mode .logo {
   color: #7b9eff;
+}
+
+body.dark-mode {
+  background: #121826;
+  color: #e8edf7;
+}
+
+body.dark-mode main,
+body.dark-mode .section-heading h2,
+body.dark-mode .hero h1,
+body.dark-mode .hero p,
+body.dark-mode .section-heading p,
+body.dark-mode .page-card h1,
+body.dark-mode .page-card h2,
+body.dark-mode .page-card h3,
+body.dark-mode .card h1,
+body.dark-mode .card h2,
+body.dark-mode .card h3,
+body.dark-mode .form-card h1,
+body.dark-mode .form-card h2,
+body.dark-mode .form-card h3,
+body.dark-mode .subject-card h3 {
+  color: var(--text-primary);
+}
+
+body.dark-mode .form-card,
+body.dark-mode .subject-card,
+body.dark-mode .stat-card,
+body.dark-mode .timer-card,
+body.dark-mode .filters-bar,
+body.dark-mode .goal-card,
+body.dark-mode .team-card,
+body.dark-mode .testimonial-card {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+body.dark-mode .page-card > p,
+body.dark-mode .form-card label,
+body.dark-mode .stat-card span,
+body.dark-mode .team-card p,
+body.dark-mode .testimonial-card p {
+  color: var(--text-secondary);
+}
+
+body.dark-mode .badge-item strong,
+body.dark-mode .badge-item p {
+  color: #20283a;
+}
+
+body.dark-mode .btn-secondary {
+  background: #37445e;
+  color: #f4f7ff;
+  border-color: #566582;
+}
+
+body.dark-mode input[type="text"]:focus,
+body.dark-mode input[type="email"]:focus,
+body.dark-mode input[type="password"]:focus,
+body.dark-mode input[type="date"]:focus,
+body.dark-mode input[type="number"]:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+  background: #424d65;
+  color: #f4f7ff;
 }
 
 /* Statistics Page */

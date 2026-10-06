@@ -9,6 +9,16 @@ class AppInit {
       }
       window.appState = window.appState || (typeof appState !== 'undefined' ? appState : {});
 
+      if (typeof apiGet === 'function') {
+        const session = await apiGet('/me');
+        if (session?.success && session.user) {
+          setUser(session.user);
+        } else if (session?.status === 401 || session?.status === 403) {
+          window.appState.user = null;
+          if (typeof saveAppState === 'function') saveAppState();
+        }
+      }
+
       if (typeof registerPageRoutes === 'function') {
         registerPageRoutes();
       } else {

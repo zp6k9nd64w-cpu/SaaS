@@ -15,9 +15,9 @@ const register = {
             <label class="field-label" for="reg-email">E-Mail</label>
             <input type="email" id="reg-email" placeholder="E-Mail" required>
             <label class="field-label" for="reg-password">Passwort</label>
-            <input type="password" id="reg-password" placeholder="Passwort" required>
+            <input type="password" id="reg-password" placeholder="Mindestens 12 Zeichen" minlength="12" maxlength="128" required>
             <label class="field-label" for="reg-password-confirm">Passwort bestätigen</label>
-            <input type="password" id="reg-password-confirm" placeholder="Passwort bestätigen" required>
+            <input type="password" id="reg-password-confirm" placeholder="Passwort bestätigen" minlength="12" maxlength="128" required>
             <label class="field-label" for="reg-school-type">Schulart</label>
             <select id="reg-school-type" required>
               <option value="">Schulart wählen</option>

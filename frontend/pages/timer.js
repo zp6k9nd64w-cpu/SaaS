@@ -20,6 +20,8 @@ const timer = {
           <div class="timer-options" style="margin-top: 2rem;">
             <label>Arbeitszeit (Minuten):</label>
             <input type="number" id="work-time" value="25" min="1" max="60" style="width: 100px; padding: 0.5rem;">
+            <label style="margin-left:1rem;">Fach (optional):</label>
+            <input type="text" id="study-subject" maxlength="80" placeholder="z. B. Mathematik" style="max-width:220px;padding:0.5rem;">
             
             <label style="margin-top: 1rem; display: block;">Pausenzeit (Minuten):</label>
             <input type="number" id="break-time" value="5" min="1" max="30" style="width: 100px; padding: 0.5rem;">
@@ -69,8 +71,16 @@ function updateTimerDisplay() {
 
 function startTimer() {
   if (isRunning) return;
-  const workTime = parseInt(document.getElementById('work-time').value) * 60;
-  const breakTime = parseInt(document.getElementById('break-time').value) * 60;
+  const workMinutes = Number(document.getElementById('work-time').value);
+  const breakMinutes = Number(document.getElementById('break-time').value);
+  if (!Number.isInteger(workMinutes) || workMinutes < 1 || workMinutes > 60 ||
+      !Number.isInteger(breakMinutes) || breakMinutes < 1 || breakMinutes > 30) {
+    document.getElementById('timer-status').textContent = 'Bitte gib gültige Arbeits- und Pausenzeiten ein.';
+    return;
+  }
+  const workTime = workMinutes * 60;
+  const breakTime = breakMinutes * 60;
+  if (isWorkTime && timeLeft === 1500) timeLeft = workTime;
   
   isRunning = true;
   document.getElementById('start-btn').style.display = 'none';
@@ -82,13 +92,22 @@ function startTimer() {
     
     if (timeLeft === 0) {
       const message = isWorkTime 
-        ? `✅ Gut gemacht! Nimm dir jetzt eine ${Math.floor(breakTime / 60)}-Minuten Pause.`
+        ? `✅ Gut gemacht! Nimm dir jetzt eine ${breakMinutes}-Minuten Pause.`
         : '🚀 Pausen-Zeit vorbei! Zurück zur Arbeit!';
       
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('Pomodoro Timer', { body: message, icon: '⏰' });
       }
       
+      if (isWorkTime) {
+        const subject = document.getElementById('study-subject').value.trim();
+        apiPost('/study-sessions', { durationMinutes: workMinutes, subject })
+          .then(() => addXP(workMinutes >= 20 ? 20 : 10, 'study_session_completed'))
+          .catch(error => {
+            document.getElementById('timer-status').textContent = `Session beendet, aber nicht gespeichert: ${error.message}`;
+          });
+      }
+
       isWorkTime = !isWorkTime;
       timeLeft = isWorkTime ? workTime : breakTime;
       updateTimerDisplay();
@@ -109,7 +128,7 @@ function pauseTimer() {
 
 function resetTimer() {
   pauseTimer();
-  const workTime = parseInt(document.getElementById('work-time').value) * 60;
+  const workTime = Number(document.getElementById('work-time').value) * 60;
   timeLeft = workTime;
   isWorkTime = true;
   updateTimerDisplay();

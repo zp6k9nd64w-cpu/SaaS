@@ -13,7 +13,7 @@ const login = {
             <label class="field-label" for="username">Benutzername</label>
             <input type="text" id="username" placeholder="Benutzername" required>
             <label class="field-label" for="password">Passwort</label>
-            <input type="password" id="password" placeholder="Passwort" required>
+            <input type="password" id="password" placeholder="Passwort" maxlength="128" required>
             <button type="submit" class="btn">Anmelden</button>
           </form>
           <p class="auth-switch">Neu hier? <a href="#/register">Konto anlegen</a></p>

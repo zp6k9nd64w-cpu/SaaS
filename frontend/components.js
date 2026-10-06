@@ -7,7 +7,7 @@ class Navbar {
     const userLink = appState && appState.user ? '#/profil' : '#/login';
     
     nav.innerHTML = `
-      <div class="logo">📚 SAAS</div>
+      <a class="logo" href="#/" aria-label="SAAS Startseite">📚 SAAS</a>
       
       <!-- Hamburger Menu -->
       <div class="burger">
